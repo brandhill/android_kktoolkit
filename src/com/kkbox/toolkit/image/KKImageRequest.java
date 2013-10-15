@@ -141,14 +141,14 @@ public class KKImageRequest extends UserTask<Object, Header[], Bitmap> {
 				if (cacheFile.exists()) {
 					if (actionType == KKImageManager.ActionType.DOWNLOAD) {
 						if (localFile == null || !localFile.exists()) {
-							cryptToFile(cachePath, localPath);
+							cryptToFile(cachePath, localPath, cipher);
 						}
 						return null;
 					} else {
 						bitmap = decodeBitmap(cachePath);
 						if (bitmap != null) {
 							if (localPath != null && saveToLocal && (localFile == null || !localFile.exists())) {
-								cryptToFile(cachePath, localPath);
+								cryptToFile(cachePath, localPath, cipher);
 							}
 							return bitmap;
 						} else {
@@ -160,7 +160,7 @@ public class KKImageRequest extends UserTask<Object, Header[], Bitmap> {
 					if (actionType == KKImageManager.ActionType.DOWNLOAD) {
 						return null;
 					} else {
-						cryptToFile(localPath, tempFilePath);
+						cryptToFile(localPath, tempFilePath, cipher);
 						moveFileTo(tempFilePath, cachePath);
 						bitmap = decodeBitmap(cachePath);
 						if (bitmap != null) {
@@ -209,7 +209,7 @@ public class KKImageRequest extends UserTask<Object, Header[], Bitmap> {
 				bitmap = decodeBitmap(cachePath);
 				if (bitmap != null) {
 					if (saveToLocal && localPath != null) {
-						cryptToFile(cachePath, localPath);
+						cryptToFile(cachePath, localPath, cipher);
 					}
 					return bitmap;
 				}
@@ -284,11 +284,13 @@ public class KKImageRequest extends UserTask<Object, Header[], Bitmap> {
 		}
 	}
 
-	private void cryptToFile(String sourceFilePath, String targetFilePath) throws Exception {
+	public static void cryptToFile(String sourceFilePath, String targetFilePath, Cipher cipher) throws Exception {
 		// FIXME: should have two functions: decyptToFile and encryptToFile
 		RandomAccessFile sourceFile = new RandomAccessFile(sourceFilePath, "r");
 		RandomAccessFile targetFile = new RandomAccessFile(targetFilePath, "rw");
 		int readLength;
+		final int BUFFER_SIZE = 1024;
+		byte[] buffer = new byte[BUFFER_SIZE];
 		do {
 			readLength = sourceFile.read(buffer, 0, BUFFER_SIZE);
 			if (readLength != -1) {

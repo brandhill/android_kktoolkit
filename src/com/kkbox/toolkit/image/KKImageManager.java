@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.kkbox.toolkit.internal.image.KKImageRequestListener;
+import com.kkbox.toolkit.utils.KKDebug;
 import com.kkbox.toolkit.utils.StringUtils;
 import com.kkbox.toolkit.utils.UserTask;
 
@@ -285,6 +286,17 @@ public class KKImageManager {
 		workingList.add(request);
 		fetchList.put(view, request);
 		startFetch();
+	}
+
+	public void switchImageCipher(final String localPath, Cipher originCipher, final Cipher newCipher) {
+		File tempFile = new File(context.getCacheDir().getAbsolutePath() + File.separator + hashCode());
+		try {
+			tempFile.createNewFile();
+			KKImageRequest.cryptToFile(localPath, tempFile.getAbsolutePath(), originCipher);
+			KKImageRequest.cryptToFile(tempFile.getAbsolutePath(), localPath, newCipher);
+		} catch (Exception e) {
+			KKDebug.e("Switch cipher error:" + e.getMessage());
+		}
 	}
 
 	private void startFetch() {
